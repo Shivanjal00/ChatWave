@@ -39,6 +39,12 @@ fun CommonProgressBar() {
 }
 
 @Composable
+fun CommonDivider(){
+
+}
+
+
+@Composable
 fun CheckSignedIn(vm : LCViewModel,navController: NavController){
 
     val alreadySignedIn = remember { mutableStateOf(false) }
