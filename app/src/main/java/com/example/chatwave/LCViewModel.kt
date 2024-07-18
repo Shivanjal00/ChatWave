@@ -1,5 +1,6 @@
 package com.example.chatwave
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -8,18 +9,22 @@ import androidx.navigation.NavController
 import com.example.chatwave.Data.Events
 import com.example.chatwave.Data.USER_NODE
 import com.example.chatwave.Data.UserData
+import com.google.android.gms.auth.api.signin.internal.Storage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
+import com.google.firebase.storage.FirebaseStorage
 import com.google.protobuf.Value
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.lang.Exception
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class LCViewModel @Inject constructor(
     val auth: FirebaseAuth,
-    var db : FirebaseFirestore
+    var db : FirebaseFirestore,
+    val storage: FirebaseStorage
 ) : ViewModel() {
 
 
@@ -86,6 +91,30 @@ class LCViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun uploadProfileImage(uri : Uri){
+        uploadImage(uri){
+            createOrUpdateProfile(imageUrl =  it.toString())
+
+        }
+    }
+
+    fun uploadImage(uri : Uri,onSuccess:(Uri)->Unit){
+        inProcess.value = true
+        val storageRef = storage.reference
+        val uuid = UUID.randomUUID()
+        val imagRef = storageRef.child("images/$uuid")
+        val uploadTask = imagRef.putFile(uri)
+        uploadTask.addOnSuccessListener {
+            val result = it.metadata?.reference?.downloadUrl
+            result?.addOnSuccessListener(onSuccess)
+                inProcess.value = false
+        }
+
+            .addOnFailureListener{
+                handleException(it)
+            }
     }
 
     private fun createOrUpdateProfile(name: String?=null, number: String?=null,imageUrl : String?=null) {
