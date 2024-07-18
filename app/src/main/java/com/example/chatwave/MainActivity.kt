@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         var vm = hiltViewModel<LCViewModel>()
 
-        NavHost(navController = navController, startDestination = DestinationScreens.SignUp.route ){
+        NavHost(navController = navController, startDestination = DestinationScreens.Login.route ){
 
             composable(DestinationScreens.SignUp.route){
                 SignUpScreen(navController,vm)
