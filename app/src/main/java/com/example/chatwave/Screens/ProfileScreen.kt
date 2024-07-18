@@ -15,15 +15,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.chatwave.CommanImage
 import com.example.chatwave.CommonDivider
 import com.example.chatwave.CommonProgressBar
 import com.example.chatwave.LCViewModel
@@ -36,7 +47,19 @@ fun ProfileScreen(navController: NavController, vm: LCViewModel) {
         CommonProgressBar()
     } else {
         Column {
-            ProfileContent()
+            ProfileContent(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()).padding(8.dp),
+                vm = vm,
+                name = "",
+                number = "",
+                onNameChange = {""},
+                onNumberChange = {""},
+                onSave = {},
+                onBack = {},
+                onLogout = {}
+            )
             BottomNavigationMenu(
                 selectedItem = BottomNavigationItem.PROFILER,
                 navController = navController
@@ -47,15 +70,23 @@ fun ProfileScreen(navController: NavController, vm: LCViewModel) {
 
 @Composable
 fun ProfileContent(
+    modifier: Modifier,
+    vm: LCViewModel,
+    name : String,
+    number: String,
+    onNameChange:(String)->Unit,
+    onNumberChange:(String)->Unit,
     onBack: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    onLogout :()->Unit
 ) {
+    val imageUrl = vm.userData.value?.imageUrl
 
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = "Back",
@@ -72,8 +103,53 @@ fun ProfileContent(
                         onSave.invoke()
                     }, color = clr.b
             )
+
             CommonDivider()
-            ProfileImage()
+            ProfileImage(imageUrl = imageUrl,vm = vm,)
+            CommonDivider()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(text = "Name",modifier = Modifier.width(100.dp))
+                TextField(value = name, onValueChange = onNameChange,
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        focusedContainerColor = Color.Black,
+                        unfocusedContainerColor = Color.Black,
+                        disabledContainerColor = Color.Black,
+                    )
+                )
+
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(text = "Number",modifier = Modifier.width(100.dp))
+                TextField(value = number, onValueChange = onNumberChange,
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                    )
+                )
+            }
+            CommonDivider()
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+                horizontalArrangement = Arrangement.Center) {
+                Text(text = "Logout", modifier = Modifier.clickable {onLogout.invoke()})
+            }
         }
     }
 }
@@ -101,13 +177,15 @@ fun ProfileImage(imageUrl : String?,vm : LCViewModel) {
         {
 
             Card (shape = CircleShape,
-                modifier = Modifier.padding(8.dp).size(100.dp)){
-
-
-
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(100.dp)){
+                CommanImage(data = imageUrl)
             }
-
+            Text(text = "Change profile")
         }
-
+        if(vm.inProcess.value){
+            CommonProgressBar()
+        }
     }
 }

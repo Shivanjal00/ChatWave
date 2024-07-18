@@ -38,7 +38,6 @@ import com.example.chatwave.navigateTo
 @Composable
 fun SignUpScreen(navController: NavController, vm: LCViewModel)
 {
-    
     CheckSignedIn(vm = vm , navController = navController )
 
     Box(modifier = Modifier.fillMaxSize()) {

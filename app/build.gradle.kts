@@ -73,20 +73,19 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation( "com.google.dagger:hilt-android:2.51.1")
-    ksp( "com.google.dagger:hilt-compiler:2.51.1")
+    implementation( libs.hilt.android)
+    ksp( libs.google.hilt.compiler)
 
     // For instrumentation tests
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.51.1")
-    kspAndroidTest ("com.google.dagger:hilt-compiler:2.51.1")
+    androidTestImplementation(libs.google.hilt.android.testing)
+    kspAndroidTest (libs.google.hilt.compiler)
 
     // For local unit tests
-    testImplementation ("com.google.dagger:hilt-android-testing:2.51.1")
-    kspTest ("com.google.dagger:hilt-compiler:2.51.1")
+    testImplementation (libs.google.hilt.android.testing)
+    kspTest (libs.google.hilt.compiler)
 
-    val nav_version = "2.7.7"
+    implementation(libs.androidx.navigation.compose)
 
-    implementation("androidx.navigation:navigation-compose:$nav_version")
-
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.coil.compose)
 }
