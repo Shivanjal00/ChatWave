@@ -1,6 +1,5 @@
 package com.example.chatwave
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -9,12 +8,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,10 +25,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.google.firebase.storage.FirebaseStorage
 
 fun navigateTo(navController: NavController, route: String) {
@@ -67,53 +65,53 @@ fun CommonDivider(){
     )
 }
 
-@Composable
-fun CommanImage(
-    data: String?,
-    modifier: Modifier = Modifier.wrapContentSize(),
-    contentScale: ContentScale = ContentScale.Crop
-) {
-    val context = LocalContext.current
-    val imageBitmap = remember { mutableStateOf<ImageBitmap?>(null) }
-    val isLoading = remember { mutableStateOf(false) }
-
-    if (data != null) {
-        isLoading.value = true
-        FirebaseStorage.getInstance().reference.child("images/$data").getBytes(Long.MAX_VALUE).addOnSuccessListener { bytes ->
-            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-            imageBitmap.value = bitmap.asImageBitmap()
-            isLoading.value = false
-            Log.d("ImageLoader", "Image downloaded successfully")
-        }.addOnFailureListener {
-            isLoading.value = false
-            Log.d("ImageLoader", "Error downloading image: $it")
-        }
-    }
-
-    if (isLoading.value) {
-        // Display a progress bar
-        CircularProgressIndicator(modifier = modifier)
-    } else {
-        if (imageBitmap.value != null) {
-            Image(
-                bitmap = imageBitmap.value!!,
-                contentDescription = null,
-                modifier = modifier,
-                contentScale = contentScale
-            )
-            Log.d("ImageLoader", "Image displayed")
-        } else {
-            // Display a default image or a placeholder image
-            Image(
-                bitmap = ImageBitmap.imageResource(id = R.drawable.default_image),
-                contentDescription = null,
-                modifier = modifier,
-                contentScale = contentScale
-            )
-            Log.d("ImageLoader", "Default image displayed")
-        }
-    }
-}
+//@Composable
+//fun CommanImage(
+//    data: String?,
+//    modifier: Modifier = Modifier.wrapContentSize(),
+//    contentScale: ContentScale = ContentScale.Crop
+//) {
+//    val context = LocalContext.current
+//    val imageBitmap = remember { mutableStateOf<ImageBitmap?>(null) }
+//    val isLoading = remember { mutableStateOf(false) }
+//
+//    if (data != null) {
+//        isLoading.value = true
+//        FirebaseStorage.getInstance().reference.child("images/$data").getBytes(Long.MAX_VALUE).addOnSuccessListener { bytes ->
+//            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+//            imageBitmap.value = bitmap.asImageBitmap()
+//            isLoading.value = false
+//            Log.d("ImageLoader", "Image downloaded successfully")
+//        }.addOnFailureListener {
+//            isLoading.value = false
+//            Log.d("ImageLoader", "Error downloading image: $it")
+//        }
+//    }
+//
+//    if (isLoading.value) {
+//        // Display a progress bar
+//        CircularProgressIndicator(modifier = modifier)
+//    } else {
+//        if (imageBitmap.value != null) {
+//            Image(
+//                bitmap = imageBitmap.value!!,
+//                contentDescription = null,
+//                modifier = modifier,
+//                contentScale = contentScale
+//            )
+//            Log.d("ImageLoader", "Image displayed")
+//        } else {
+//            // Display a default image or a placeholder image
+//            Image(
+//                bitmap = ImageBitmap.imageResource(id = R.drawable.default_image),
+//                contentDescription = null,
+//                modifier = modifier,
+//                contentScale = contentScale
+//            )
+//            Log.d("ImageLoader", "Default image displayed")
+//        }
+//    }
+//}
 
 
 @Composable
@@ -129,5 +127,10 @@ fun CheckSignedIn(vm : LCViewModel,navController: NavController){
             popUpTo(0)
         }
     }
+}
 
+@Composable
+fun TitleText(txt : String){
+    Text(text = txt, fontWeight = FontWeight.Bold, fontSize = 35.sp,
+        modifier = Modifier.padding(8.dp))
 }

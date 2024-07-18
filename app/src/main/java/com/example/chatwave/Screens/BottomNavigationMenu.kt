@@ -38,7 +38,7 @@ fun BottomNavigationMenu(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(top = 4.dp)
+            .padding(bottom = 8.dp)
             .background(clr.r)
     ) {
 

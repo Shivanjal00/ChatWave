@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.example.chatwave.Data.ChatData
 import com.example.chatwave.Data.Events
 import com.example.chatwave.Data.USER_NODE
 import com.example.chatwave.Data.UserData
@@ -29,9 +30,11 @@ class LCViewModel @Inject constructor(
 
 
     var inProcess = mutableStateOf(false)
+    var inProcessChats = mutableStateOf(false)
     val eventMutableState = mutableStateOf<Events<String>?>(null)
     var signIn = mutableStateOf(false)
     var userData = mutableStateOf<UserData?>(null)
+    val chats = mutableStateOf<List<ChatData>>(listOf())
 
 
     init {
@@ -93,29 +96,29 @@ class LCViewModel @Inject constructor(
         }
     }
 
-    fun uploadProfileImage(uri: Uri, onComplete: () -> Unit) {
-        uploadImage(uri) { imageUrl ->
-            createOrUpdateProfile(imageUrl = imageUrl.toString())
-            onComplete()
-        }
-    }
+//    fun uploadProfileImage(uri: Uri, onComplete: () -> Unit) {
+//        uploadImage(uri) { imageUrl ->
+//            createOrUpdateProfile(imageUrl = imageUrl.toString())
+//            onComplete()
+//        }
+//    }
 
-    fun uploadImage(uri: Uri, onSuccess: (Uri) -> Unit) {
-        inProcess.value = true
-        val storageRef = storage.reference
-        val uuid = UUID.randomUUID()
-        val imagRef = storageRef.child("images/$uuid")
-        val uploadTask = imagRef.putFile(uri)
-        uploadTask.addOnSuccessListener {
-            val result = it.metadata?.reference?.downloadUrl
-            result?.addOnSuccessListener(onSuccess)
-            inProcess.value = false
-        }
-
-            .addOnFailureListener {
-                handleException(it)
-            }
-    }
+//    fun uploadImage(uri: Uri, onSuccess: (Uri) -> Unit) {
+//        inProcess.value = true
+//        val storageRef = storage.reference
+//        val uuid = UUID.randomUUID()
+//        val imagRef = storageRef.child("images/$uuid")
+//        val uploadTask = imagRef.putFile(uri)
+//        uploadTask.addOnSuccessListener {
+//            val result = it.metadata?.reference?.downloadUrl
+//            result?.addOnSuccessListener(onSuccess)
+//            inProcess.value = false
+//        }
+//
+//            .addOnFailureListener {
+//                handleException(it)
+//            }
+//    }
 
     fun createOrUpdateProfile(
         name: String? = null,
@@ -189,6 +192,12 @@ class LCViewModel @Inject constructor(
         signIn.value = false
         userData.value = null
         eventMutableState.value = Events("Logged Out")
+
+    }
+
+    fun onAddChat(it: String) {
+
+
 
     }
 }
