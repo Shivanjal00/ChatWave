@@ -4,13 +4,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,8 +28,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.chatwave.CommonProgressBar
+import com.example.chatwave.CommonRow
+import com.example.chatwave.DestinationScreens
 import com.example.chatwave.LCViewModel
 import com.example.chatwave.TitleText
+import com.example.chatwave.clr
+import com.example.chatwave.navigateTo
 
 @Composable
 fun ChatListScreen(navController: NavHostController, vm: LCViewModel) {
@@ -42,9 +47,9 @@ fun ChatListScreen(navController: NavHostController, vm: LCViewModel) {
         val showDialog = remember {
             mutableStateOf(false)
         }
-        val onFabClick : ()->Unit = {showDialog.value = true}
-        val onDismiss : ()->Unit = {showDialog.value = false}
-        val onAddChat : (String)->Unit = {
+        val onFabClick: () -> Unit = { showDialog.value = true }
+        val onDismiss: () -> Unit = { showDialog.value = false }
+        val onAddChat: (String) -> Unit = {
             vm.onAddChat(it)
             showDialog.value = false
         }
@@ -53,11 +58,15 @@ fun ChatListScreen(navController: NavHostController, vm: LCViewModel) {
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = onFabClick,
-                    containerColor = MaterialTheme.colorScheme.secondary,
+                    containerColor = clr.r,
                     shape = CircleShape,
                     modifier = Modifier.padding(bottom = 40.dp)
                 ) {
-                    Icon(imageVector = Icons.Rounded.Add, contentDescription = null, tint = Color.White)
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = null,
+                        tint = clr.b
+                    )
                 }
             },
             content = {
@@ -68,14 +77,30 @@ fun ChatListScreen(navController: NavHostController, vm: LCViewModel) {
                 ) {
                     TitleText(txt = "Chats")
 
-                    if(chats.isEmpty()){
-                        Column(modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f),
+                    if (chats.isEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(text = "No Chats Available")
+                        }
+                    } else {
+                        LazyColumn(modifier = Modifier.weight(1f)) {
+                            items(chats) { chat ->
+                                val chatuser = if (chat.user1?.userId == userData?.userId){
+                                    chat.user2
+                                }else{
+                                    chat.user2
+                                }
+                                CommonRow(name = chatuser?.name) {
+                                    chat.chatID?.let {
+                                        navigateTo(navController, DestinationScreens.SingleChat.createRoute(id = it))
+                                    }
+                                }
+                            }
                         }
                     }
 

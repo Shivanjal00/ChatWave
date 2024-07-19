@@ -11,18 +11,23 @@ import com.example.chatwave.Data.CHATS
 import com.example.chatwave.Data.ChatData
 import com.example.chatwave.Data.ChatUser
 import com.example.chatwave.Data.Events
+import com.example.chatwave.Data.MESSAGE
+import com.example.chatwave.Data.Message
 import com.example.chatwave.Data.USER_NODE
 import com.example.chatwave.Data.UserData
 import com.google.android.gms.auth.api.signin.internal.Storage
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import com.google.firebase.storage.FirebaseStorage
 import com.google.protobuf.Value
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.lang.Exception
+import java.util.Calendar
 import java.util.UUID
 import javax.inject.Inject
 
@@ -40,6 +45,9 @@ class LCViewModel @Inject constructor(
     var signIn = mutableStateOf(false)
     var userData = mutableStateOf<UserData?>(null)
     val chats = mutableStateOf<List<ChatData>>(listOf())
+    val chatMessage = mutableStateOf<List<Message>>(listOf())
+    val inProgressChatMessage = mutableStateOf(false)
+    var currentChatMessageListener: ListenerRegistration? = null
 
 
     init {
@@ -49,8 +57,61 @@ class LCViewModel @Inject constructor(
         currentUser?.uid?.let {
             getUserData(it)
         }
+    }
+
+
+    fun populateMessages(chatID: String) {
+        inProgressChatMessage.value = true
+        currentChatMessageListener = db.collection(CHATS).document(chatID).collection(MESSAGE)
+            .addSnapshotListener { value, error ->
+                if(error!=null){
+                    handleException(error)
+                }
+                if(value!= null){
+                    chatMessage.value = value.documents.mapNotNull {
+                        it.toObject<Message>()
+                    }.sortedBy { it.timeStamp }
+                    inProgressChatMessage.value = false
+                }
+            }
+    }
+
+
+    fun DePopulteMessage(){
+        chatMessage.value = listOf()
+        currentChatMessageListener = null
+    }
+
+
+    fun populateChats() {
+        inProcessChats.value = true
+        db.collection(CHATS).where(
+            Filter.or(
+                Filter.equalTo("user1.userId", userData.value?.userId),
+                Filter.equalTo("user2.userId", userData.value?.userId),
+            )
+        ).addSnapshotListener { value, error ->
+            if (error != null) {
+                handleException(error)
+            }
+            if (value != null) {
+                chats.value = value.documents.mapNotNull {
+                    it.toObject<ChatData>()
+                }
+                inProcessChats.value = false
+            }
+        }
 
     }
+
+
+    fun onSendReply(chatID: String, message: String) {
+        val time = Calendar.getInstance().time.toString()
+        val msg = Message(userData.value?.userId, message, time)
+        db.collection(CHATS).document(chatID).collection(MESSAGE).document().set(msg)
+
+    }
+
 
     fun signUp(name: String, number: String, email: String, password: String) {
         inProcess.value = true
@@ -173,6 +234,7 @@ class LCViewModel @Inject constructor(
                 var user = value.toObject<UserData>()
                 userData.value = user
                 inProcess.value = false
+                populateChats()
             }
         }
 
@@ -196,6 +258,8 @@ class LCViewModel @Inject constructor(
         auth.signOut()
         signIn.value = false
         userData.value = null
+        DePopulteMessage()
+        currentChatMessageListener= null
         eventMutableState.value = Events("Logged Out")
 
     }
@@ -240,10 +304,10 @@ class LCViewModel @Inject constructor(
                                 db.collection(CHATS).document(id).set(chat)
                             }
                         }
-                        .addOnFailureListener{
+                        .addOnFailureListener {
                             handleException(it)
                         }
-                }else{
+                } else {
                     handleException(customMessage = "Chat already exists")
                 }
             }

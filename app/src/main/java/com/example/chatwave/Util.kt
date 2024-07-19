@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,7 +57,7 @@ fun CommonProgressBar() {
 }
 
 @Composable
-fun CommonDivider(){
+fun CommonDivider() {
     HorizontalDivider(
         modifier = Modifier
             .alpha(.5f)
@@ -115,22 +117,45 @@ fun CommonDivider(){
 
 
 @Composable
-fun CheckSignedIn(vm : LCViewModel,navController: NavController){
+fun CheckSignedIn(vm: LCViewModel, navController: NavController) {
 
     val alreadySignedIn = remember { mutableStateOf(false) }
 
     val signIn = vm.signIn.value
 
-    if(signIn && !alreadySignedIn.value){
-        alreadySignedIn.value= true
-        navController.navigate(DestinationScreens.ChatList.route){
+    if (signIn && !alreadySignedIn.value) {
+        alreadySignedIn.value = true
+        navController.navigate(DestinationScreens.ChatList.route) {
             popUpTo(0)
         }
     }
 }
 
 @Composable
-fun TitleText(txt : String){
-    Text(text = txt, fontWeight = FontWeight.Bold, fontSize = 35.sp,
-        modifier = Modifier.padding(8.dp))
+fun TitleText(txt: String) {
+    Text(
+        text = txt, fontWeight = FontWeight.Bold, fontSize = 35.sp,
+        modifier = Modifier.padding(8.dp)
+    )
+}
+
+@Composable
+fun CommonRow(name: String?, onItemClick: () -> Unit) {
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(75.dp)
+            .clickable { onItemClick.invoke() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Text(
+            text = name ?: "----",
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 4.dp)
+        )
+
+    }
+
 }
