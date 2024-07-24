@@ -35,9 +35,106 @@ import com.example.chatwave.navigateTo
 @Composable
 fun StatusScreen(navController: NavController, vm: LCViewModel) {
 
+    val inprocess = vm.inProgressStatus.value
+    if (inprocess) {
+        CommonProgressBar()
+    } else {
+        val statuses = vm.status.value
+        val userData = vm.userData.value
+        val myStatuses = statuses.filter {
+            it.user.userId == userData?.userId
+        }
+        val otherStatuses = statuses.filter {
+            it.user.userId != userData?.userId
+        }
 
-    BottomNavigationMenu(
-        selectedItem = BottomNavigationItem.STATUSLIST,
-        navController = navController
-    )
+        val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) {
+            uri->
+            uri?.let{
+                vm.uploadStatus(uri)
+            }
+
+        }
+
+
+        Scaffold(
+            floatingActionButton = {
+                FAB {
+                    launcher.launch("image/*")
+                }
+            },
+            content = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(it)
+                ) {
+                    TitleText(txt = "Status")
+                    if (statuses.isEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(text = "No Status Available")
+                        }
+                    } else {
+                        if (myStatuses.isNotEmpty()) {
+                            CommonRow(
+                                imageUrl = myStatuses[0].user.imageUrl,
+                                name = myStatuses[0].user.name
+                            ) {
+                                navigateTo(
+                                    navController = navController,
+                                    DestinationScreens.SingleStatus.createRoute(myStatuses[0].user.userId!!)
+                                )
+
+                            }
+                            CommonDivider()
+
+                            val uniqueUsers = otherStatuses.map { it.user }.toSet().toList()
+                            LazyColumn(modifier = Modifier.weight(1f)) {
+                                items(uniqueUsers) { user ->
+                                    CommonRow(imageUrl = user.imageUrl, name = user.name) {
+                                        navigateTo(
+                                            navController = navController,
+                                            DestinationScreens.SingleStatus.createRoute(user.userId!!)
+                                        )
+
+                                    }
+                                }
+
+                            }
+
+                        }
+                    }
+                    BottomNavigationMenu(
+                        selectedItem = BottomNavigationItem.STATUSLIST,
+                        navController = navController
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun FAB(
+    onFabClick: () -> Unit
+) {
+    FloatingActionButton(
+        onClick = onFabClick,
+        containerColor = clr.r,
+        shape = CircleShape,
+        modifier = Modifier.padding(bottom = 40.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Edit,
+            contentDescription = "Add Status",
+            tint = Color.White
+        )
+
+    }
 }

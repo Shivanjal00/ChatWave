@@ -13,6 +13,8 @@ import com.example.chatwave.Data.ChatUser
 import com.example.chatwave.Data.Events
 import com.example.chatwave.Data.MESSAGE
 import com.example.chatwave.Data.Message
+import com.example.chatwave.Data.STATUS
+import com.example.chatwave.Data.Status
 import com.example.chatwave.Data.USER_NODE
 import com.example.chatwave.Data.UserData
 import com.google.android.gms.auth.api.signin.internal.Storage
@@ -41,13 +43,16 @@ class LCViewModel @Inject constructor(
 
     var inProcess = mutableStateOf(false)
     var inProcessChats = mutableStateOf(false)
-    val eventMutableState = mutableStateOf<Events<String>?>(null)
+    private val eventMutableState = mutableStateOf<Events<String>?>(null)
     var signIn = mutableStateOf(false)
     var userData = mutableStateOf<UserData?>(null)
     val chats = mutableStateOf<List<ChatData>>(listOf())
     val chatMessage = mutableStateOf<List<Message>>(listOf())
-    val inProgressChatMessage = mutableStateOf(false)
-    var currentChatMessageListener: ListenerRegistration? = null
+    private val inProgressChatMessage = mutableStateOf(false)
+    private var currentChatMessageListener: ListenerRegistration? = null
+
+    val status = mutableStateOf<List<Status>>(listOf())
+    val inProgressStatus = mutableStateOf(false)
 
 
     init {
@@ -234,6 +239,7 @@ class LCViewModel @Inject constructor(
                 userData.value = user
                 inProcess.value = false
                 populateChats()
+                populateStatuses()
             }
         }
 
@@ -294,7 +300,8 @@ class LCViewModel @Inject constructor(
                                         userData.value?.userId,
                                         userData.value?.name,
                                         userData.value?.imageUrl,
-                                        userData.value?.number),
+                                        userData.value?.number
+                                    ),
                                     ChatUser(
                                         chatPartner.userId,
                                         chatPartner.name,
@@ -311,6 +318,61 @@ class LCViewModel @Inject constructor(
                 } else {
                     handleException(customMessage = "Chat already exists")
                 }
+            }
+        }
+    }
+
+    fun uploadStatus(uri: Uri) {
+        uploadImage(uri) {
+            createStatus(it.toString())
+        }
+    }
+
+    fun createStatus(imageUrl: String) {
+        val newStatus = Status(
+            ChatUser(
+                userData.value?.userId,
+                userData.value?.name,
+                userData.value?.imageUrl,
+                userData.value?.number,
+            ),
+            imageUrl,
+            System.currentTimeMillis()
+        )
+        db.collection(STATUS).document().set(newStatus)
+    }
+
+    fun populateStatuses() {
+        val  timeDelta = 24L * 60 * 60 * 1000
+        val cutOff = System.currentTimeMillis() - timeDelta
+        inProgressStatus.value = true
+        db.collection(CHATS).where(
+            Filter.or(
+                Filter.equalTo("user1.userId", userData.value?.userId),
+                Filter.equalTo("user2.userId", userData.value?.userId)
+            )
+        ).addSnapshotListener { value, error ->
+            if(error != null)
+                handleException(error)
+            if(value != null){
+                val currentConnection = arrayListOf(userData.value?.userId)
+                val chats = value.toObjects<ChatData>()
+                chats.forEach{
+                    chat->
+                    if(chat.user1?.userId == userData.value?.userId){
+                        currentConnection.add(chat.user2?.userId)
+                    }else
+                        currentConnection.add(chat.user1?.userId)
+                }
+                db.collection(STATUS).whereGreaterThan("timestamp",cutOff).whereIn("user.userId",currentConnection)
+                    .addSnapshotListener { value, error ->
+                        if (error != null)
+                            handleException(error)
+                        if(value != null){
+                            status.value = value.toObjects()
+                            inProgressStatus.value = false
+                        }
+                    }
             }
         }
     }
