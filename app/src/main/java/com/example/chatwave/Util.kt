@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.google.firebase.storage.FirebaseStorage
 
 fun navigateTo(navController: NavController, route: String) {
@@ -67,53 +68,23 @@ fun CommonDivider() {
     )
 }
 
-//@Composable
-//fun CommanImage(
-//    data: String?,
-//    modifier: Modifier = Modifier.wrapContentSize(),
-//    contentScale: ContentScale = ContentScale.Crop
-//) {
-//    val context = LocalContext.current
-//    val imageBitmap = remember { mutableStateOf<ImageBitmap?>(null) }
-//    val isLoading = remember { mutableStateOf(false) }
-//
-//    if (data != null) {
-//        isLoading.value = true
-//        FirebaseStorage.getInstance().reference.child("images/$data").getBytes(Long.MAX_VALUE).addOnSuccessListener { bytes ->
-//            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-//            imageBitmap.value = bitmap.asImageBitmap()
-//            isLoading.value = false
-//            Log.d("ImageLoader", "Image downloaded successfully")
-//        }.addOnFailureListener {
-//            isLoading.value = false
-//            Log.d("ImageLoader", "Error downloading image: $it")
-//        }
-//    }
-//
-//    if (isLoading.value) {
-//        // Display a progress bar
-//        CircularProgressIndicator(modifier = modifier)
-//    } else {
-//        if (imageBitmap.value != null) {
-//            Image(
-//                bitmap = imageBitmap.value!!,
-//                contentDescription = null,
-//                modifier = modifier,
-//                contentScale = contentScale
-//            )
-//            Log.d("ImageLoader", "Image displayed")
-//        } else {
-//            // Display a default image or a placeholder image
-//            Image(
-//                bitmap = ImageBitmap.imageResource(id = R.drawable.default_image),
-//                contentDescription = null,
-//                modifier = modifier,
-//                contentScale = contentScale
-//            )
-//            Log.d("ImageLoader", "Default image displayed")
-//        }
-//    }
-//}
+@Composable
+fun CommanImage(
+    data: String?,
+    modifier: Modifier = Modifier.wrapContentSize(),
+    contentScale: ContentScale = ContentScale.Crop
+) {
+
+    val painter = rememberImagePainter(data = data)
+    Image(
+        painter = painter,
+        contentDescription = null,
+        modifier = modifier,
+        contentScale = contentScale
+    )
+
+
+}
 
 
 @Composable

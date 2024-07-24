@@ -64,10 +64,10 @@ class LCViewModel @Inject constructor(
         inProgressChatMessage.value = true
         currentChatMessageListener = db.collection(CHATS).document(chatID).collection(MESSAGE)
             .addSnapshotListener { value, error ->
-                if(error!=null){
+                if (error != null) {
                     handleException(error)
                 }
-                if(value!= null){
+                if (value != null) {
                     chatMessage.value = value.documents.mapNotNull {
                         it.toObject<Message>()
                     }.sortedBy { it.timeStamp }
@@ -77,7 +77,7 @@ class LCViewModel @Inject constructor(
     }
 
 
-    fun DePopulteMessage(){
+    fun DePopulteMessage() {
         chatMessage.value = listOf()
         currentChatMessageListener = null
     }
@@ -162,29 +162,28 @@ class LCViewModel @Inject constructor(
         }
     }
 
-//    fun uploadProfileImage(uri: Uri, onComplete: () -> Unit) {
-//        uploadImage(uri) { imageUrl ->
-//            createOrUpdateProfile(imageUrl = imageUrl.toString())
-//            onComplete()
-//        }
-//    }
+    fun uploadProfileImage(uri: Uri) {
+        uploadImage(uri) {
+            createOrUpdateProfile(imageUrl = it.toString())
 
-//    fun uploadImage(uri: Uri, onSuccess: (Uri) -> Unit) {
-//        inProcess.value = true
-//        val storageRef = storage.reference
-//        val uuid = UUID.randomUUID()
-//        val imagRef = storageRef.child("images/$uuid")
-//        val uploadTask = imagRef.putFile(uri)
-//        uploadTask.addOnSuccessListener {
-//            val result = it.metadata?.reference?.downloadUrl
-//            result?.addOnSuccessListener(onSuccess)
-//            inProcess.value = false
-//        }
-//
-//            .addOnFailureListener {
-//                handleException(it)
-//            }
-//    }
+        }
+    }
+
+    fun uploadImage(uri: Uri, onSuccess: (Uri) -> Unit) {
+        inProcess.value = true
+        val storageRef = storage.reference
+        val uuid = UUID.randomUUID()
+        val imagRef = storageRef.child("images/$uuid")
+        val uploadTask = imagRef.putFile(uri)
+        uploadTask.addOnSuccessListener {
+            val result = it.metadata?.reference?.downloadUrl
+            result?.addOnSuccessListener(onSuccess)
+            inProcess.value = false
+        }
+            .addOnFailureListener {
+                handleException(it)
+            }
+    }
 
     fun createOrUpdateProfile(
         name: String? = null,
@@ -259,7 +258,7 @@ class LCViewModel @Inject constructor(
         signIn.value = false
         userData.value = null
         DePopulteMessage()
-        currentChatMessageListener= null
+        currentChatMessageListener = null
         eventMutableState.value = Events("Logged Out")
 
     }
@@ -312,6 +311,5 @@ class LCViewModel @Inject constructor(
                 }
             }
         }
-
     }
 }
