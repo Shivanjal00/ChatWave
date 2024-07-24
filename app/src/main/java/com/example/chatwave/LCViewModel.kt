@@ -292,11 +292,13 @@ class LCViewModel @Inject constructor(
                                     chatID = id,
                                     ChatUser(
                                         userData.value?.userId,
-                                        userData.value?.name, userData.value?.number
-                                    ),
+                                        userData.value?.name,
+                                        userData.value?.imageUrl,
+                                        userData.value?.number),
                                     ChatUser(
                                         chatPartner.userId,
                                         chatPartner.name,
+                                        chatPartner.imageUrl,
                                         chatPartner.number
                                     )
                                 )

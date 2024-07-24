@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -21,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -111,7 +114,7 @@ fun TitleText(txt: String) {
 }
 
 @Composable
-fun CommonRow(name: String?, onItemClick: () -> Unit) {
+fun CommonRow(imageUrl: String?, name: String?, onItemClick: () -> Unit) {
 
     Row(
         modifier = Modifier
@@ -120,6 +123,15 @@ fun CommonRow(name: String?, onItemClick: () -> Unit) {
             .clickable { onItemClick.invoke() },
         verticalAlignment = Alignment.CenterVertically
     ) {
+
+        CommanImage(
+            data = imageUrl,
+            modifier = Modifier
+                .padding(8.dp)
+                .size(50.dp)
+                .clip(CircleShape)
+                .background(clr.r)
+        )
 
         Text(
             text = name ?: "----",
