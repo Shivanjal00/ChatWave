@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
@@ -34,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.chatwave.CommanImage
 import com.example.chatwave.CommonDivider
 import com.example.chatwave.Data.Message
 import com.example.chatwave.LCViewModel
@@ -71,7 +74,7 @@ fun SingleChatScreen(navController: NavController, vm: LCViewModel, chatId: Stri
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-        ChatHeader(name = chatUser?.name?: "") {
+        ChatHeader(name = chatUser?.name ?: "", imageUrl = chatUser?.imageUrl?:"") {
             navController.popBackStack()
             vm.DePopulteMessage()
         }
@@ -87,8 +90,10 @@ fun SingleChatScreen(navController: NavController, vm: LCViewModel, chatId: Stri
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(chatMessage.value) { msg ->
-                    val alignment = if (msg.sendBy == myUser?.userId) Alignment.End else Alignment.Start
-                    val color = if (msg.sendBy == myUser?.userId) Color(0xff5fa5f8) else Color(0xffce336c)
+                    val alignment =
+                        if (msg.sendBy == myUser?.userId) Alignment.End else Alignment.Start
+                    val color =
+                        if (msg.sendBy == myUser?.userId) Color(0xff5fa5f8) else Color(0xffce336c)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -96,10 +101,11 @@ fun SingleChatScreen(navController: NavController, vm: LCViewModel, chatId: Stri
                         horizontalAlignment = alignment
                     ) {
                         Text(
-                            text = msg.message?: "",
+                            text = msg.message ?: "",
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(color).padding(12.dp),
+                                .background(color)
+                                .padding(12.dp),
                             color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
@@ -134,10 +140,11 @@ fun MessageBox(modifier: Modifier, chatMessage: List<Message>, currentUserId: St
                 horizontalAlignment = alignment
             ) {
                 Text(
-                    text = msg.message?: "",
+                    text = msg.message ?: "",
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(color).padding(12.dp),
+                        .background(color)
+                        .padding(12.dp),
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
@@ -149,7 +156,7 @@ fun MessageBox(modifier: Modifier, chatMessage: List<Message>, currentUserId: St
 }
 
 @Composable
-fun ChatHeader(name: String, onBackClicked: () -> Unit) {
+fun ChatHeader(name: String, imageUrl: String, onBackClicked: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -164,14 +171,27 @@ fun ChatHeader(name: String, onBackClicked: () -> Unit) {
                     onBackClicked.invoke()
                 }
                 .padding(8.dp))
+
+        CommanImage(
+            data = imageUrl,
+            modifier = Modifier
+                .padding(8.dp)
+                .size(50.dp)
+                .clip(CircleShape)
+        )
         Text(text = name, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 4.dp))
     }
     CommonDivider()
 }
 
 @Composable
-fun ReplyBox(reply: String, onReplyChange: (String) -> Unit, onSendReply: () -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
+fun ReplyBox(
+    reply: String,
+    onReplyChange: (String) -> Unit,
+    onSendReply: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
         CommonDivider()
         Row(
             modifier = Modifier
